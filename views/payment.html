@@ -271,7 +271,9 @@
     PagSeguroDirectPayment.setSessionId('{$pagseguro.id}');
 </script>
 
+
 <script>
+//Cartões
 scripts.push(function(){
 
     function showError(error)
@@ -285,9 +287,11 @@ scripts.push(function(){
 	    amount: parseFloat("{$order.vltotal}"),
 	    success: function(response) {
 	        
+            //Cartões
             var tplDebit = Handlebars.compile($("#tpl-payment-debit").html());
             var tplCredit = Handlebars.compile($("#tpl-payment-credit").html());
             
+            //Cartão de Debito
             $.each(response.paymentMethods.ONLINE_DEBIT.options, function(index, option){
                 
                 $("#tab-debito .contents").append(tplDebit({
@@ -297,6 +301,7 @@ scripts.push(function(){
                 }));
             });
 
+            //Cartão de Credito
             $.each(response.paymentMethods.CREDIT_CARD.options, function(index, option){
                 
                 $("#tab-credito .contents").append(tplCredit({
@@ -330,6 +335,7 @@ scripts.push(function(){
 	    }
     });
 
+    //Numero do Cartão
     $("#number_field").on("change", function(){
 
         var value = $(this).val();
@@ -341,7 +347,67 @@ scripts.push(function(){
         success: function(response) {
             
             $("#brand_field").val(response.brand.name);
-            console.log(response.brand.name);
+
+            //Parcelas
+            PagSeguroDirectPayment.getInstallments({
+                amount: parseFloat("{$order.vltotal}"),
+                maxInstallmentNoInterest: parseInt("{$pagseguro.maxInstallmentNoInterest}"),
+                brand: response.brand.name,
+                success: function(response){
+
+                    $("#installments_field").html('<option disabled="disabled"></option>');
+                    
+                    var tplInstallmentFree = Handlebars.compile($("#tpl-installment-free").html());
+                    var tplInstallment = Handlebars.compile($("#tpl-installment").html())
+
+                    
+                    var formatReal = {
+                        minimumFractionDigits: 2,
+                        style: "currency",
+                        currency: "BRL"
+                        };
+                        $.each(response.installments[$("#brand_field").val()], function(index, installment){
+                            
+                            if (parseInt("{$pagseguro.maxInstallment}") > index) {
+                                
+                                if (installment.interestFree === true) {
+                                    
+                                    var $option = $(tplInstallmentFree({
+                                        quantity: installment.quantity,
+                                        installmentAmount: installment.installmentAmount.toLocaleString('pt-BR', formatReal)
+                                }));
+                                    
+                                    } else {
+                                    
+                                    var $option = $(tplInstallment({
+                                        quantity: installment.quantity,
+                                        installmentAmount: installment.installmentAmount.toLocaleString('pt-BR', formatReal),
+                                        totalAmount: installment.totalAmount.toLocaleString('pt-BR', formatReal)
+                                    }));
+                                    }
+                                    
+                                    $option.data("installment", installment);
+                                    
+                                    $("#installments_field").append($option);
+                                }
+                            });
+                        },
+                error: function(response) {
+                    
+                    var errors = [];
+
+                    for (var code in response.errors)
+                    {
+                        errors.push(response.errors[code]);
+                    }
+
+                    showError(errors.toString());
+
+            },
+                complete: function(response){
+                    // Callback para todas chamadas.
+            }
+});
 
         },
         error: function(response) {
@@ -367,3 +433,4 @@ scripts.push(function(){
     
 });
 </script>
+
