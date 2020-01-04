@@ -1,18 +1,22 @@
 <?php
 
-namespace Hcode\Pagseguro;
+namespace Hcode\PagSeguro;
+
+use Exception;
+use DOMDocument;
+use DOMElement;
 
 class Shipping {
-    
-    const PAC = 1;
+	
+	const PAC = 1;
 	const SEDEX = 2;
 	const OTHER = 3;
-
-    private $address;
+	
+	private $address;
 	private $type;
 	private $cost;
 	private $addressRequired;
-
+	
 	public function __construct(
 		Address $address,
 		float $cost,
@@ -24,12 +28,14 @@ class Shipping {
 		{
 			throw new Exception("Informe um tipo de frete válido");
 		}
-		
+	
 		$this->address = $address;
 		$this->cost = $cost;
 		$this->type = $type;
 		$this->addressRequired = $addressRequired;
+	
 	}
+
 	public function getDOMElement():DOMElement
 	{
 	
@@ -53,4 +59,5 @@ class Shipping {
 		
 		return $shipping;
 	}
+	
 }

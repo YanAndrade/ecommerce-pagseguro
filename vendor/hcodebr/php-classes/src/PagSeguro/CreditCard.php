@@ -2,6 +2,13 @@
 
 namespace Hcode\Pagseguro;
 
+use Exception;
+use DOMDocument;
+use DOMElement;
+use Hcode\PagSeguro\CreditCard\Installment;
+use Hcode\PagSeguro\CreditCard\Holder;
+
+
 class CreditCard {
     
     private $token;

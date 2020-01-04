@@ -2,6 +2,10 @@
 
 namespace Hcode\Pagseguro;
 
+use Exception;
+use DOMDocument;
+use DOMElement;
+
 class Document {
     
     private $type;

@@ -1,16 +1,22 @@
 <?php
 
-namespace Hcode\Pagseguro;
+namespace Hcode\PagSeguro;
+
+use Exception;
+use DOMDocument;
+use DOMElement;
+use DateTime;
 
 class Sender {
-    
-    private $name;
+	
+	private $name;
 	private $cpf;
 	private $bornDate;
 	private $phone;
 	private $email;
 	private $hash;
-    private $ip;
+	private $ip;
+	
 	public function __construct(
 		string $name,
 		Document $cpf,
@@ -21,21 +27,18 @@ class Sender {
 	)
 	{
 		if (!$name)
+		{
+			throw new Exception("Informe o nome do comprador.");
+		}
+		if (!filter_var($email, FILTER_VALIDATE_EMAIL))
+		{
+			throw new Exception("O e-mail informado não é válido.");
+		}
+		if (!$hash)
+		{
+			throw new Exception("Informe a identificação do comprador.");
+		}
 		
-			{
-				throw new Exception("Informe o nome do comprador.");
-			}
-			
-			if (!filter_var($email, FILTER_VALIDATE_EMAIL))
-			{
-				throw new Exception("O e-mail informado não é válido.");
-			}
-			
-			if (!$hash)
-			{
-				throw new Exception("Informe a identificação do comprador.");
-			}
-			
 		$this->name = $name;
 		$this->bornDate = $bornDate;
 		$this->cpf = $cpf;
@@ -43,9 +46,8 @@ class Sender {
 		$this->email = $email;
 		$this->hash = $hash;
 		$this->ip = $_SERVER["REMOTE_ADDR"];
-	
 	}
-	
+
 	public function getDOMElement():DOMElement
 	{
 	
