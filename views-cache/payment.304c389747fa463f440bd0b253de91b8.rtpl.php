@@ -271,7 +271,9 @@
     PagSeguroDirectPayment.setSessionId('<?php echo htmlspecialchars( $pagseguro["id"], ENT_COMPAT, 'UTF-8', FALSE ); ?>');
 </script>
 
+
 <script>
+//Cartões
 scripts.push(function(){
 
     function showError(error)
@@ -285,9 +287,11 @@ scripts.push(function(){
 	    amount: parseFloat("<?php echo htmlspecialchars( $order["vltotal"], ENT_COMPAT, 'UTF-8', FALSE ); ?>"),
 	    success: function(response) {
 	        
+            //Cartões
             var tplDebit = Handlebars.compile($("#tpl-payment-debit").html());
             var tplCredit = Handlebars.compile($("#tpl-payment-credit").html());
             
+            //Cartão de Debito
             $.each(response.paymentMethods.ONLINE_DEBIT.options, function(index, option){
                 
                 $("#tab-debito .contents").append(tplDebit({
@@ -297,6 +301,7 @@ scripts.push(function(){
                 }));
             });
 
+            //Cartão de Credito
             $.each(response.paymentMethods.CREDIT_CARD.options, function(index, option){
                 
                 $("#tab-credito .contents").append(tplCredit({
@@ -330,6 +335,7 @@ scripts.push(function(){
 	    }
     });
 
+    //Numero do Cartão
     $("#number_field").on("change", function(){
 
         var value = $(this).val();
@@ -342,6 +348,7 @@ scripts.push(function(){
             
             $("#brand_field").val(response.brand.name);
 
+            //Parcelas
             PagSeguroDirectPayment.getInstallments({
                 amount: parseFloat("<?php echo htmlspecialchars( $order["vltotal"], ENT_COMPAT, 'UTF-8', FALSE ); ?>"),
                 maxInstallmentNoInterest: parseInt("<?php echo htmlspecialchars( $pagseguro["maxInstallmentNoInterest"], ENT_COMPAT, 'UTF-8', FALSE ); ?>"),
@@ -423,6 +430,80 @@ scripts.push(function(){
         }
 
     });
+
+    //Validar CPF
+    function isValidCPF(number) {
+        var sum;
+        var rest;
+        sum = 0;
+        if (number == "00000000000") return false;
+        for (i=1; i<=9; i++) sum = sum + parseInt(number.substring(i-1, i)) * (11 - i);
+        rest = (sum * 10) % 11;
+        if ((rest == 10) || (rest == 11))  rest = 0;
+        if (rest != parseInt(number.substring(9, 10)) ) return false;
+        sum = 0;
+        for (i = 1; i <= 10; i++) sum = sum + parseInt(number.substring(i-1, i)) * (12 - i);
+        rest = (sum * 10) % 11;
+        if ((rest == 10) || (rest == 11))  rest = 0;
+        if (rest != parseInt(number.substring(10, 11) ) ) return false;
+        return true;
+    }
+    $("#form-credit").on("submit", function(e){
+        
+        e.preventDefault();
+        
+        if (!isValidCPF($("#form-credit [name=cpf]").val())) {
+            
+            showError("Este número de CPF não é válido");
+            return false;
+        
+        }
+        
+        $("#form-credit [type=submit]").attr("disabled", "disabled");
+
+            var formData = $(this).serializeArray();
+        
+            var params = {};
+        
+        $.each(formData, function(index, field){
+            params[field.name] = field.value;
+        });
+        
+        console.log(params);
+
+        PagSeguroDirectPayment.createCardToken({
+            cardNumber: params.number,
+            brand: params.brand,
+            cvv: params.cvv,
+            expirationMonth: params.month,
+            expirationYear: params.year, 
+            success: function(response) {
+
+                console.log("TOKEN", response);
+                console.log("HASH", PagSeguroDirectPayment.getSenderHash());
+                console.log("params", params);
+
+            },
+            error: function(response) {
+                var errors = [];
+
+                for (var code in response.errors)
+                {
+                    errors.push(response.errors[code]);
+                }
+
+            showError(errors.toString());
+
+            },
+            complete: function(response) {
+
+                $("#form-credit [type=submit]").removeAttr("disabled");
+
+            }
+});
+
+    });
     
 });
 </script>
+
