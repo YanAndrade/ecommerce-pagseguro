@@ -6,6 +6,7 @@ use Exception;
 use DOMDocument;
 use DOMElement;
 
+
 class Item {
 	
 	private $id;
@@ -43,6 +44,7 @@ class Item {
 		$this->quantity = $quantity;
 	}
 	
+	//Coleta de todas as informações pasada no site-pagseguro.php
 	public function getDOMElement():DOMElement
 	{
 	
@@ -62,7 +64,7 @@ class Item {
 		
 		$description = $dom->createElement("description", $this->description);
 		$description = $item->appendChild($description);
-		
+	
 		return $item;
 	}
 	

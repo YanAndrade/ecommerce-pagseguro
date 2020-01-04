@@ -25,6 +25,9 @@ class Config {
     const SANDBOX_URL_JS = "https://stc.sandbox.pagseguro.uol.com.br/pagseguro/api/v2/checkout/pagseguro.directpayment.js";
     const PRODUCTION_URL_JS = "https://stc.pagseguro.uol.com.br/pagseguro/api/v2/checkout/pagseguro.directpayment.js";
 
+    //Endereço de pós compra
+    const NOTIFICATION_URL = "http://www.html5dev.com.br/payment/notification";
+
     //Parcelas
     //Sem juros
     const MAX_INSTALLMENT_NO_INTEREST = 8;
