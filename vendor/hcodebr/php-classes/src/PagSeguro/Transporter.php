@@ -6,7 +6,7 @@ use \GuzzleHttp\Client;
 
 class Transporter {
     
-    //Criando a Sessão
+    //Comunicação
     public static function createSession()
     {
         $client = new Client();
