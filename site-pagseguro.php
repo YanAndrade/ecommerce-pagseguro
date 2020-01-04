@@ -87,6 +87,7 @@ $app->post('/payment/credit', function(){
 	foreach($cart->getProducts() as $product)
 	
 	{
+		
         $item = new Item(
             (int)$product['idproduct'],
             $product['desproduct'],
@@ -95,15 +96,11 @@ $app->post('/payment/credit', function(){
         );
 		
 		$payment->addItem($item);
-	}
-	
-	$dom = new DOMDocument();
+	};
 
-	$test = $creditCard->getDOMElement();
+	$payment->setCreditCard($creditCard);
 
-	$testNode = $dom->importNode($test, true);
-	
-	$dom->appendChild($testNode);
+	$dom = $payment->getDOMDocument();
 
 	echo $dom->saveXML();
 
