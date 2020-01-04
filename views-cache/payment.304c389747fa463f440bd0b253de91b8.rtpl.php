@@ -471,6 +471,7 @@ scripts.push(function(){
         
         console.log(params);
 
+        //Criando o Token da compra
         PagSeguroDirectPayment.createCardToken({
             cardNumber: params.number,
             brand: params.brand,
@@ -479,10 +480,16 @@ scripts.push(function(){
             expirationYear: params.year, 
             success: function(response) {
 
-                console.log("TOKEN", response);
-                console.log("HASH", PagSeguroDirectPayment.getSenderHash());
-                console.log("params", params);
+                params.token = response.card.token;
+                params.hash = PagSeguroDirectPayment.getSenderHash();
 
+                $.post(
+                        "/payment/credit",
+                        $.param(params),
+                        function(r){
+                            console.log(r);
+                        }
+                );
             },
             error: function(response) {
                 var errors = [];
