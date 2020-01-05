@@ -25,6 +25,10 @@ class Config {
     const SANDBOX_URL_JS = "https://stc.sandbox.pagseguro.uol.com.br/pagseguro/api/v2/checkout/pagseguro.directpayment.js";
     const PRODUCTION_URL_JS = "https://stc.pagseguro.uol.com.br/pagseguro/api/v2/checkout/pagseguro.directpayment.js";
 
+    //Transação
+    const SANDBOX_URL_TRANSACTION = "https://ws.sandbox.pagseguro.uol.com.br/v2/transactions";
+    const PRODUCTION_URL_TRANSACTION = "https://ws.pagseguro.uol.com.br/v2/transactions";
+
     //Endereço de pós compra
     const NOTIFICATION_URL = "http://www.html5dev.com.br/payment/notification";
 
@@ -62,4 +66,11 @@ class Config {
     {
         return (Config::SANDBOX === true) ? Config::SANDBOX_URL_JS : Config::PRODUCTION_URL_JS;
     }
+
+    //Transação
+    public static function getUrlTransaction()
+	{
+		return (Config::SANDBOX === true) ? Config::SANDBOX_URL_TRANSACTION :
+		Config::PRODUCTION_URL_TRANSACTION;
+	}
 }
