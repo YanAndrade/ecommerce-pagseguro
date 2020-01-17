@@ -32,6 +32,81 @@ $app->get('/payment/success', function(){
     ]);
 });
 
+//payment boleto
+$app->post('/payment/boleto', function(){
+	
+	User::verifyLogin(false);
+	
+	$order = new Order();
+	
+	$order->getFromSession();
+
+	//Testado
+	$order->get((int)$order->getidorder());
+
+	$address = $order->getAddress();
+	
+	$cart = $order->getCart();
+
+	//CPF Testado
+	$cpf = new Document(Document::CPF, $_POST['cpf']);
+
+	//Telefone Testado
+	$phone = new Phone($_POST['ddd'], $_POST['phone']);
+
+	//Dados Testado
+	$shippingAddress = new Address(
+        $address->getdesaddress(),
+        $address->getdesnumber(),
+        $address->getdescomplement(),       
+        $address->getdesdistrict(),
+        $address->getdeszipcode(),
+        $address->getdescity(),
+        $address->getdesstate(),
+        $address->getdescountry()
+	);
+	
+	//Data Testado
+	$birthDate = new DateTime($_POST['birth']);
+
+	//Dados Testado
+	$sender = new Sender($order->getdesperson(), $cpf, $birthDate, $phone, $order->getdesemail(), $_POST['hash']);
+	
+	//Dados Testado
+	$holder = new Holder($order->getdesperson(), $cpf, $birthDate, $phone);
+
+	//Entrega Testado
+	$shipping = new Shipping($shippingAddress, (float)$cart->getvlfreight(), Shipping::PAC);
+
+	//Pagamento - Item 
+	$payment = new Payment($order->getidorder(), $sender, $shipping);
+
+	//Item
+	foreach($cart->getProducts() as $product)
+	
+	{
+		
+        $item = new Item(
+            (int)$product['idproduct'],
+            $product['desproduct'],
+            (float)$product['vlprice'],
+            (int)$product['nrqtd']
+        );
+		
+		$payment->addItem($item);
+	};
+
+	$payment->setBoleto();
+
+	Transporter::sendTransaction($payment);
+
+	echo json_encode([
+        'success'=>true
+    ]);
+
+});
+
+
 //payment credito
 $app->post('/payment/credit', function(){
 	

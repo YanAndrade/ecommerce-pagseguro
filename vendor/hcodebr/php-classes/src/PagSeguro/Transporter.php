@@ -50,7 +50,7 @@ class Transporter {
 			(float)$xml->extraAmount,
 			(string)$xml->paymentLink
 		);
+		//var_dump($xml);
 		return $xml;
-
-    }
+	 	/* s */}
 }
